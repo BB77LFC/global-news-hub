@@ -10,6 +10,8 @@ import WorldRegionMap from './components/WorldRegionMap';
 import LiveTvModal from './components/LiveTvModal';
 import TrendingPanel from './components/TrendingPanel';
 import SourceStatusBar from './components/SourceStatusBar';
+import AdminAnalyticsModal from './components/AdminAnalyticsModal';
+import { trackVisit } from './services/telemetryClient';
 import {
   GLOBAL_STORIES,
   filterStories,
@@ -43,6 +45,7 @@ export default function App() {
   const [selectedStory, setSelectedStory] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isTvModalOpen, setIsTvModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   // ── Live feed sync ────────────────────────────────
   const syncLiveWire = useCallback(async (silent = false) => {
@@ -62,6 +65,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Record pageview telemetry
+    trackVisit('pageview');
+
     // Immediate first fetch
     syncLiveWire();
 
@@ -132,6 +138,7 @@ export default function App() {
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
         onOpenLiveTv={() => setIsTvModalOpen(true)}
+        onOpenAdminAnalytics={() => setIsAdminModalOpen(true)}
         lastSynced={lastSynced}
       />
 
@@ -231,7 +238,10 @@ export default function App() {
                     <StoryCard
                       key={story.id}
                       story={story}
-                      onOpenDossier={(s) => setSelectedStory(s)}
+                      onOpenDossier={(s) => {
+                        setSelectedStory(s);
+                        trackVisit('dossier_open', { title: s.title, category: s.category });
+                      }}
                       isBookmarked={bookmarkedIds.includes(story.id)}
                       onToggleBookmark={handleToggleBookmark}
                     />
@@ -293,6 +303,12 @@ export default function App() {
           setSelectedCategory(cat);
           setIsDrawerOpen(false);
         }}
+      />
+
+      {/* Owner Classified Telemetry & Analytics Terminal */}
+      <AdminAnalyticsModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
       />
     </div>
   );

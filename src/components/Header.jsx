@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Radio, Search, Bookmark, Tv2, Zap, Menu, X } from 'lucide-react';
+import { Radio, Search, Bookmark, Tv2, Zap, Menu, X, BarChart3, Shield } from 'lucide-react';
 
 export default function Header({
   searchQuery, setSearchQuery,
@@ -7,6 +7,7 @@ export default function Header({
   bookmarkCount,
   isDrawerOpen, setIsDrawerOpen,
   onOpenLiveTv,
+  onOpenAdminAnalytics,
   lastSynced
 }) {
   const [scrolled, setScrolled] = useState(false);
@@ -19,17 +20,21 @@ export default function Header({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Keyboard shortcut: Ctrl+K or / to focus search
+  // Keyboard shortcut: Ctrl+K or / to focus search, Ctrl+Shift+A for Admin Analytics
   useEffect(() => {
     const onKey = (e) => {
       if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT')) {
         e.preventDefault();
         searchRef.current?.focus();
       }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        onOpenAdminAnalytics?.();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [onOpenAdminAnalytics]);
 
   const fmtSynced = (d) => {
     if (!d) return '';
@@ -112,6 +117,17 @@ export default function Header({
           >
             <Zap size={16} />
             <span className="btn-label">Social Wire</span>
+          </button>
+
+          <button
+            className="header-action-btn"
+            onClick={onOpenAdminAnalytics}
+            title="Classified Owner Telemetry (Ctrl+Shift+A)"
+            id="header-admin-telemetry-btn"
+            style={{ opacity: 0.8 }}
+          >
+            <BarChart3 size={16} />
+            <span className="btn-label" style={{ fontSize: '0.72rem' }}>Analytics</span>
           </button>
 
           <button

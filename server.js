@@ -3,6 +3,13 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { fetchLiveRssFeeds, FEED_SOURCES } from './src/server/feedFetcher.js';
+import {
+  trackEvent,
+  verifyAdminPin,
+  validateAdminToken,
+  getAdminDashboardMetrics,
+  resetAnalyticsData
+} from './src/server/analyticsService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,6 +120,56 @@ app.get('/api/health', (req, res) => {
     sourcesMonitored: FEED_SOURCES.length,
     timestamp: new Date().toISOString()
   });
+});
+
+// ── Analytics & Admin Routes ────────────────────
+app.post('/api/analytics/track', (req, res) => {
+  try {
+    const { eventType, path, referrer, metadata } = req.body || {};
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || '';
+    const result = trackEvent({ eventType, path, referrer, metadata, ip, userAgent });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Admin PIN login
+app.post('/api/admin/login', (req, res) => {
+  const { pin } = req.body || {};
+  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+  const result = verifyAdminPin(pin, clientIp);
+  if (result.success) {
+    res.json({ success: true, token: result.token });
+  } else {
+    res.status(401).json({ success: false, error: result.error });
+  }
+});
+
+// Admin Analytics Dashboard (Protected)
+app.get('/api/admin/analytics', (req, res) => {
+  const token = req.headers['x-admin-token'] || req.query.token;
+  if (!validateAdminToken(token)) {
+    return res.status(403).json({ success: false, error: 'Unauthorized: Invalid or expired admin token.' });
+  }
+  const metrics = getAdminDashboardMetrics();
+  res.json({
+    success: true,
+    feedCount: cachedFeeds.length,
+    totalSources: FEED_SOURCES.length,
+    ...metrics
+  });
+});
+
+// Admin Reset Data (Protected)
+app.post('/api/admin/reset', (req, res) => {
+  const token = req.headers['x-admin-token'] || req.query.token;
+  if (!validateAdminToken(token)) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+  const result = resetAnalyticsData();
+  res.json(result);
 });
 
 // ────────────────────────────────────────────────

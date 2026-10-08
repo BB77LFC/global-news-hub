@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fetchLiveRssFeeds } from './src/server/feedFetcher.js';
+import {
+  trackEvent,
+  verifyAdminPin,
+  validateAdminToken,
+  getAdminDashboardMetrics,
+  resetAnalyticsData
+} from './src/server/analyticsService.js';
 
 // In-process cache for dev server
 let devCache = [];
@@ -70,6 +77,82 @@ export default defineConfig({
             lastRefreshed: devCacheTime ? new Date(devCacheTime).toISOString() : null,
             timestamp: new Date().toISOString()
           }));
+        });
+
+        // Analytics tracking
+        server.middlewares.use('/api/analytics/track', (req, res) => {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const data = body ? JSON.parse(body) : {};
+              const result = trackEvent({
+                ...data,
+                ip: req.socket.remoteAddress || '127.0.0.1',
+                userAgent: req.headers['user-agent'] || ''
+              });
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(result));
+            } catch (e) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: e.message }));
+            }
+          });
+        });
+
+        // Admin PIN login
+        server.middlewares.use('/api/admin/login', (req, res) => {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const data = body ? JSON.parse(body) : {};
+              const result = verifyAdminPin(data.pin, req.socket.remoteAddress || '127.0.0.1');
+              res.setHeader('Content-Type', 'application/json');
+              if (result.success) {
+                res.end(JSON.stringify(result));
+              } else {
+                res.statusCode = 401;
+                res.end(JSON.stringify(result));
+              }
+            } catch (e) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: e.message }));
+            }
+          });
+        });
+
+        // Admin Analytics Dashboard
+        server.middlewares.use('/api/admin/analytics', (req, res) => {
+          const url = new URL(req.url, 'http://localhost');
+          const token = req.headers['x-admin-token'] || url.searchParams.get('token');
+          if (!validateAdminToken(token)) {
+            res.statusCode = 403;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({ success: false, error: 'Unauthorized: Invalid PIN token' }));
+          }
+          const metrics = getAdminDashboardMetrics();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({
+            success: true,
+            feedCount: devCache.length,
+            totalSources: 26,
+            ...metrics
+          }));
+        });
+
+        // Admin Reset
+        server.middlewares.use('/api/admin/reset', (req, res) => {
+          const url = new URL(req.url, 'http://localhost');
+          const token = req.headers['x-admin-token'] || url.searchParams.get('token');
+          if (!validateAdminToken(token)) {
+            res.statusCode = 403;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
+          }
+          const result = resetAnalyticsData();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(result));
         });
       }
     }
