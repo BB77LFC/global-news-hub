@@ -1,0 +1,91 @@
+:root {
+  /* Color Palette */
+  --bg-primary: #07090e;
+  --bg-secondary: #0d121d;
+  --bg-tertiary: #131b2e;
+  --bg-card: rgba(16, 23, 38, 0.75);
+  --bg-card-hover: rgba(23, 33, 54, 0.85);
+  --bg-card-active: rgba(29, 42, 69, 0.95);
+
+  --text-primary: #f3f6fc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #07090e;
+
+  /* Neon & Telemetry Accents */
+  --accent-cyan: #00e5ff;
+  --accent-cyan-glow: rgba(0, 229, 255, 0.35);
+  --accent-crimson: #ff2a6d;
+  --accent-crimson-glow: rgba(255, 42, 109, 0.35);
+  --accent-amber: #ffb800;
+  --accent-emerald: #05f190;
+  --accent-emerald-glow: rgba(5, 241, 144, 0.35);
+  --accent-violet: #8a2be2;
+
+  /* Source Brand Colors */
+  --brand-x: #1d9bf0;
+  --brand-x-bg: rgba(29, 155, 240, 0.12);
+  --brand-x-border: rgba(29, 155, 240, 0.35);
+
+  --brand-nyt: #ffffff;
+  --brand-nyt-bg: rgba(255, 255, 255, 0.1);
+  --brand-nyt-border: rgba(255, 255, 255, 0.3);
+
+  --brand-instagram: #e1306c;
+  --brand-instagram-gradient: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  --brand-instagram-bg: rgba(225, 48, 108, 0.12);
+  --brand-instagram-border: rgba(225, 48, 108, 0.4);
+
+  --brand-reuters: #ff8000;
+  --brand-reuters-bg: rgba(255, 128, 0, 0.12);
+  --brand-reuters-border: rgba(255, 128, 0, 0.35);
+
+  --brand-bbc: #bb1919;
+  --brand-bbc-bg: rgba(187, 25, 25, 0.12);
+  --brand-bbc-border: rgba(187, 25, 25, 0.4);
+
+  --brand-guardian: #005689;
+  --brand-guardian-bg: rgba(0, 86, 137, 0.15);
+  --brand-guardian-border: rgba(0, 86, 137, 0.45);
+
+  --brand-aljazeera: #d99b26;
+  --brand-aljazeera-bg: rgba(217, 155, 38, 0.15);
+  --brand-aljazeera-border: rgba(217, 155, 38, 0.45);
+
+  --brand-reddit: #ff4500;
+  --brand-reddit-bg: rgba(255, 69, 0, 0.12);
+  --brand-reddit-border: rgba(255, 69, 0, 0.35);
+
+  --brand-bluesky: #0085ff;
+  --brand-bluesky-bg: rgba(0, 133, 255, 0.12);
+  --brand-bluesky-border: rgba(0, 133, 255, 0.35);
+
+  --brand-youtube: #ff0000;
+  --brand-youtube-bg: rgba(255, 0, 0, 0.12);
+  --brand-youtube-border: rgba(255, 0, 0, 0.35);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(13, 18, 29, 0.75);
+  --glass-bg-elevated: rgba(19, 27, 44, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(0, 229, 255, 0.3);
+  --glass-blur: blur(14px);
+  --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+
+  /* Typography */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Layout & Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+  --max-width: 1480px;
+
+  /* Transition Speeds */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
